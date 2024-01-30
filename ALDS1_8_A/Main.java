@@ -14,7 +14,7 @@ public class Main {
       operations[i] = sc.nextLine();
     }
 
-    System.out.println(solve(operations));
+    System.out.print(solve(operations));
 
     sc.close();
   }
@@ -30,12 +30,9 @@ public class Main {
         List<Integer> preorderValues = new ArrayList<>();
         preorderSearch(preorderValues, root);
 
-        if (result.length() != 0) {
-          result.append("\n");
-        }
         result.append(
             String.format(
-                "%s\n%s",
+                "%s\n%s\n",
                 inorderValues.stream()
                     .map(String::valueOf)
                     .map(s -> " " + s)
