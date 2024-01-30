@@ -38,13 +38,13 @@ public class Main {
         IntStream.range(0, ids.length).boxed().collect(Collectors.toMap(i -> ids[i], i -> i));
 
     List<Integer> preorderIds = new ArrayList<>();
-    preorder(preorderIds, idToIndex, lefts, rights, root);
+    preorderSearch(preorderIds, idToIndex, lefts, rights, root);
 
     List<Integer> inorderIds = new ArrayList<>();
-    inorder(inorderIds, idToIndex, lefts, rights, root);
+    inorderSearch(inorderIds, idToIndex, lefts, rights, root);
 
     List<Integer> postorderIds = new ArrayList<>();
-    postorder(postorderIds, idToIndex, lefts, rights, root);
+    postorderSearch(postorderIds, idToIndex, lefts, rights, root);
 
     return String.format(
         "Preorder\n%s\nInorder\n%s\nPostorder\n%s",
@@ -53,7 +53,7 @@ public class Main {
         postorderIds.stream().map(String::valueOf).map(s -> " " + s).collect(Collectors.joining()));
   }
 
-  static void preorder(
+  static void preorderSearch(
       List<Integer> preorderIds,
       Map<Integer, Integer> idToIndex,
       int[] lefts,
@@ -64,15 +64,15 @@ public class Main {
     preorderIds.add(id);
 
     if (lefts[index] != -1) {
-      preorder(preorderIds, idToIndex, lefts, rights, lefts[index]);
+      preorderSearch(preorderIds, idToIndex, lefts, rights, lefts[index]);
     }
 
     if (rights[index] != -1) {
-      preorder(preorderIds, idToIndex, lefts, rights, rights[index]);
+      preorderSearch(preorderIds, idToIndex, lefts, rights, rights[index]);
     }
   }
 
-  static void inorder(
+  static void inorderSearch(
       List<Integer> inorderIds,
       Map<Integer, Integer> idToIndex,
       int[] lefts,
@@ -81,17 +81,17 @@ public class Main {
     int index = idToIndex.get(id);
 
     if (lefts[index] != -1) {
-      inorder(inorderIds, idToIndex, lefts, rights, lefts[index]);
+      inorderSearch(inorderIds, idToIndex, lefts, rights, lefts[index]);
     }
 
     inorderIds.add(id);
 
     if (rights[index] != -1) {
-      inorder(inorderIds, idToIndex, lefts, rights, rights[index]);
+      inorderSearch(inorderIds, idToIndex, lefts, rights, rights[index]);
     }
   }
 
-  static void postorder(
+  static void postorderSearch(
       List<Integer> postorderIds,
       Map<Integer, Integer> idToIndex,
       int[] lefts,
@@ -100,11 +100,11 @@ public class Main {
     int index = idToIndex.get(id);
 
     if (lefts[index] != -1) {
-      postorder(postorderIds, idToIndex, lefts, rights, lefts[index]);
+      postorderSearch(postorderIds, idToIndex, lefts, rights, lefts[index]);
     }
 
     if (rights[index] != -1) {
-      postorder(postorderIds, idToIndex, lefts, rights, rights[index]);
+      postorderSearch(postorderIds, idToIndex, lefts, rights, rights[index]);
     }
 
     postorderIds.add(id);
