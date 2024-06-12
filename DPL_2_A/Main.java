@@ -2,7 +2,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.IntStream;
 
 public class Main {
   public static void main(String[] args) {
@@ -25,13 +24,6 @@ public class Main {
   }
 
   static int solve(int V, int[] s, int[] t, int[] d) {
-    int minDistance =
-        IntStream.range(0, V).map(from -> computeMinDistance(V, s, t, d, from)).min().getAsInt();
-
-    return (minDistance == Integer.MAX_VALUE) ? -1 : minDistance;
-  }
-
-  static int computeMinDistance(int V, int[] s, int[] t, int[] d, int from) {
     @SuppressWarnings("unchecked")
     List<Integer>[] edgeLists = new List[V];
     for (int i = 0; i < edgeLists.length; ++i) {
@@ -45,7 +37,7 @@ public class Main {
     for (int mask = 0; mask < dp.length; ++mask) {
       Arrays.fill(dp[mask], Integer.MAX_VALUE);
     }
-    dp[1 << from][from] = 0;
+    dp[1][0] = 0;
 
     int result = Integer.MAX_VALUE;
     for (int mask = 1; mask < dp.length; ++mask) {
@@ -55,7 +47,7 @@ public class Main {
             if (((mask >> t[edge]) & 1) == 0) {
               int nextMask = mask + (1 << t[edge]);
               dp[nextMask][t[edge]] = Math.min(dp[nextMask][t[edge]], dp[mask][last] + d[edge]);
-            } else if (mask == (1 << V) - 1 && t[edge] == from) {
+            } else if (mask == (1 << V) - 1 && t[edge] == 0) {
               result = Math.min(result, dp[mask][last] + d[edge]);
             }
           }
@@ -63,6 +55,6 @@ public class Main {
       }
     }
 
-    return result;
+    return (result == Integer.MAX_VALUE) ? -1 : result;
   }
 }
