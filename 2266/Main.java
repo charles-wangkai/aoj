@@ -1,32 +1,35 @@
 // https://blog.51cto.com/u_15127504/3509930
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
+import java.util.StringTokenizer;
 import java.util.stream.IntStream;
 
 public class Main {
-  public static void main(String[] args) {
-    Scanner sc = new Scanner(System.in);
+  public static void main(String[] args) throws Throwable {
+    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-    int M = sc.nextInt();
-    int N = sc.nextInt();
-    int K = sc.nextInt();
+    StringTokenizer st = new StringTokenizer(br.readLine());
+    int M = Integer.parseInt(st.nextToken());
+    int N = Integer.parseInt(st.nextToken());
+    int K = Integer.parseInt(st.nextToken());
     int[] w = new int[N];
     for (int i = 0; i < w.length; ++i) {
-      w[i] = sc.nextInt();
+      st = new StringTokenizer(br.readLine());
+      w[i] = Integer.parseInt(st.nextToken());
     }
     int[] a = new int[K];
     for (int i = 0; i < a.length; ++i) {
-      a[i] = sc.nextInt();
+      st = new StringTokenizer(br.readLine());
+      a[i] = Integer.parseInt(st.nextToken());
     }
 
     System.out.println(solve(M, w, a));
-
-    sc.close();
   }
 
   static int solve(int M, int[] w, int[] a) {
@@ -40,42 +43,57 @@ public class Main {
               .toArray());
     }
 
-    List<Edge> edges = new ArrayList<>();
-
-    @SuppressWarnings("unchecked")
-    List<Integer>[] edgeLists = new List[a.length];
-    for (int i = 0; i < edgeLists.length; ++i) {
-      edgeLists[i] = new ArrayList<>();
-    }
+    MinCostFlow minCostFlow = new MinCostFlow(a.length);
     for (int i = 0; i < a.length - 1; ++i) {
-      addEdges(edges, edgeLists, i, i + 1, M - 1, 0);
+      minCostFlow.addEdges(i, i + 1, M - 1, 0);
     }
 
     Map<Integer, Integer> ballToLastIndex = new HashMap<>();
     for (int i = 0; i < a.length; ++i) {
       if (ballToLastIndex.containsKey(a[i])) {
-        addEdges(edges, edgeLists, ballToLastIndex.get(a[i]), i - 1, 1, -w[a[i] - 1]);
+        minCostFlow.addEdges(ballToLastIndex.get(a[i]), i - 1, 1, -w[a[i] - 1]);
       }
 
       ballToLastIndex.put(a[i], i);
     }
 
     return Arrays.stream(a).map(ai -> w[ai - 1]).sum()
-        + computeMinCostFlow(edges, edgeLists, 0, a.length - 1, M - 1);
+        + minCostFlow.computeMinCostFlow(0, a.length - 1, M - 1);
+  }
+}
+
+class MinCostFlow {
+  List<Edge> edges = new ArrayList<>();
+  List<Integer>[] edgeLists;
+
+  @SuppressWarnings("unchecked")
+  MinCostFlow(int size) {
+    edgeLists = new List[size];
+    for (int i = 0; i < edgeLists.length; ++i) {
+      edgeLists[i] = new ArrayList<>();
+    }
   }
 
-  static int computeMinCostFlow(List<Edge> edges, List<Integer>[] edgeLists, int s, int t, int f) {
-    int N = edgeLists.length;
+  void addEdges(int u, int v, int cap, int cost) {
+    edges.add(new Edge(u, v, cap, cost));
+    edgeLists[u].add(edges.size() - 1);
+
+    edges.add(new Edge(v, u, 0, -cost));
+    edgeLists[v].add(edges.size() - 1);
+  }
+
+  int computeMinCostFlow(int s, int t, int f) {
+    int size = edgeLists.length;
 
     int result = 0;
     while (f != 0) {
-      int[] prevEdges = new int[N];
-      int[] distances = new int[N];
+      int[] prevEdges = new int[size];
+      int[] distances = new int[size];
       Arrays.fill(distances, Integer.MAX_VALUE);
       distances[s] = 0;
       while (true) {
         boolean updated = false;
-        for (int v = 0; v < N; ++v) {
+        for (int v = 0; v < size; ++v) {
           if (distances[v] != Integer.MAX_VALUE) {
             for (int e : edgeLists[v]) {
               Edge edge = edges.get(e);
@@ -112,25 +130,17 @@ public class Main {
     return result;
   }
 
-  static void addEdges(List<Edge> edges, List<Integer>[] edgeLists, int u, int v, int z, int cost) {
-    edges.add(new Edge(u, v, z, cost));
-    edgeLists[u].add(edges.size() - 1);
+  static class Edge {
+    int from;
+    int to;
+    int capacity;
+    int cost;
 
-    edges.add(new Edge(v, u, 0, -cost));
-    edgeLists[v].add(edges.size() - 1);
-  }
-}
-
-class Edge {
-  int from;
-  int to;
-  int capacity;
-  int cost;
-
-  Edge(int from, int to, int capacity, int cost) {
-    this.from = from;
-    this.to = to;
-    this.capacity = capacity;
-    this.cost = cost;
+    Edge(int from, int to, int capacity, int cost) {
+      this.from = from;
+      this.to = to;
+      this.capacity = capacity;
+      this.cost = cost;
+    }
   }
 }
